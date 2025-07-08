@@ -72,7 +72,8 @@ fun PlaylistScreen(
                             Column {
                                 Text(
                                     text = playlist.name,
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = Color.White
                                 )
                                 Text(
                                     text = "${playlist.songIds.size} songs",
@@ -80,7 +81,7 @@ fun PlaylistScreen(
                                 )
                             }
                             IconButton(onClick = { onPlayPlaylist(playlist.id) }) {
-                                Icon(Icons.Filled.PlayArrow, contentDescription = "Play Playlist")
+                                Icon(Icons.Filled.PlayArrow, contentDescription = "Play Playlist", tint = Color(0xFFc79818))
                             }
                         }
                     }

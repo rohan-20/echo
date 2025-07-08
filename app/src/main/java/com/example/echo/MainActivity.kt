@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.*
@@ -145,12 +146,7 @@ class MainActivity : ComponentActivity() {
                                 PlaybackControls(
                                     currentSong = currentSong,
                                     isPlaying = isPlaying,
-                                    currentPosition = currentPosition,
-                                    totalDuration = totalDuration,
-                                    onPlayPauseClick = { musicService?.playPause() },
-                                    onNextClick = { musicService?.playNextSong() },
-                                    onPreviousClick = { musicService?.playPreviousSong() },
-                                    onSeek = { position -> musicService?.seekTo(position) }
+                                    onPlayPauseClick = { musicService?.playPause() }
                                 )
                                 if (selectedPlaylistId == null) {
                                     TabRow(selectedTabIndex = selectedTab) {
@@ -260,18 +256,13 @@ class MainActivity : ComponentActivity() {
 fun PlaybackControls(
     currentSong: Music?,
     isPlaying: Boolean,
-    currentPosition: Float,
-    totalDuration: Float,
-    onPlayPauseClick: () -> Unit,
-    onNextClick: () -> Unit,
-    onPreviousClick: () -> Unit,
-    onSeek: (Float) -> Unit
+    onPlayPauseClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF4a708c))
     ) {
         Column {
             Row(
@@ -281,45 +272,41 @@ fun PlaybackControls(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Icon(
+                    imageVector = Icons.Filled.MusicNote,
+                    contentDescription = "Music Note",
+                    tint = Color(0xFFc79818),
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = currentSong?.title ?: "No song playing",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        text = truncateText(currentSong?.title ?: "No song playing", 30),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, color = Color.White),
                         maxLines = 1
                     )
                     Text(
                         text = currentSong?.artist ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color.White.copy(alpha = 0.7f)),
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
                         maxLines = 1
                     )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onPreviousClick) {
-                        Icon(Icons.Filled.SkipPrevious, contentDescription = "Previous", tint = Color.White)
-                    }
-                    IconButton(onClick = onPlayPauseClick) {
-                        Icon(
-                            if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                            contentDescription = if (isPlaying) "Pause" else "Play",
-                            tint = Color.White
-                        )
-                    }
-                    IconButton(onClick = onNextClick) {
-                        Icon(Icons.Filled.SkipNext, contentDescription = "Next", tint = Color.White)
-                    }
+                IconButton(onClick = onPlayPauseClick) {
+                    Icon(
+                        if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                        contentDescription = if (isPlaying) "Pause" else "Play",
+                        tint = Color.White
+                    )
                 }
             }
-
-            Slider(
-                value = currentPosition,
-                onValueChange = onSeek,
-                valueRange = 0f..totalDuration,
-                colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.secondary,
-                    activeTrackColor = MaterialTheme.colorScheme.secondary
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
         }
+    }
+}
+
+fun truncateText(text: String, maxLength: Int): String {
+    return if (text.length > maxLength) {
+        text.substring(0, maxLength) + "..."
+    } else {
+        text
     }
 }

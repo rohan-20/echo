@@ -3,8 +3,8 @@ package com.example.echo.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val Golden = Color(0xFFc79818)
-val DarkGray = Color(0xFF36454F)
-val LightGray = Color(0xFFA9A9A9)
+val DarkGray = Color(0xFF2d4454)
+val LightGray = Color(0xFF1f2f3b)
 val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
 

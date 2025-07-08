@@ -20,9 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
-
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.Alignment
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,24 +74,48 @@ fun MusicItem(music: Music, onClick: (Music) -> Unit, onAddClick: (Music) -> Uni
                 Icon(
                     imageVector = Icons.Filled.MusicNote,
                     contentDescription = "Music Note",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = Color(0xFFc79818),
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(
-                        text = music.title,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        text = truncateText(music.title, 45),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = Color.White)
                     )
-                    Text(
-                        text = music.artist,
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = truncateText(music.artist, 20),
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
+                        )
+                        Text(
+                            text = formatDuration(music.duration),
+                            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                        )
+                    }
                 }
             }
             IconButton(onClick = { onAddClick(music) }) {
                 Icon(Icons.Filled.Add, contentDescription = "Add to playlist")
             }
         }
+    }
+}
+
+fun formatDuration(durationMillis: Long): String {
+    val minutes = durationMillis / 1000 / 60
+    val seconds = durationMillis / 1000 % 60
+    return String.format("%02d:%02d", minutes, seconds)
+}
+
+fun truncateText(text: String, maxLength: Int): String {
+    return if (text.length > maxLength) {
+        text.substring(0, maxLength) + "..."
+    } else {
+        text
     }
 }

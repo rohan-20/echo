@@ -14,7 +14,8 @@ class MusicRepository(private val context: Context) {
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.DATA
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DURATION
         )
 
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
@@ -31,16 +32,18 @@ class MusicRepository(private val context: Context) {
             val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
             val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
                 val title = cursor.getString(titleColumn)
                 val artist = cursor.getString(artistColumn)
                 val data = cursor.getString(dataColumn)
+                val duration = cursor.getLong(durationColumn)
 
                 // Filter for .mp3 and .wav files
                 if (data.endsWith(".mp3") || data.endsWith(".wav")) {
-                    musicList.add(Music(id, title, artist, data))
+                    musicList.add(Music(id, title, artist, data, duration))
                 }
             }
         }
