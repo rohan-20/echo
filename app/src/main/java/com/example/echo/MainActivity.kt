@@ -146,7 +146,9 @@ class MainActivity : ComponentActivity() {
                                 PlaybackControls(
                                     currentSong = currentSong,
                                     isPlaying = isPlaying,
-                                    onPlayPauseClick = { musicService?.playPause() }
+                                    onPlayPauseClick = { musicService?.playPause() },
+                                    currentPosition = currentPosition,
+                                    totalDuration = totalDuration
                                 )
                                 if (selectedPlaylistId == null) {
                                     TabRow(selectedTabIndex = selectedTab) {
@@ -256,7 +258,9 @@ class MainActivity : ComponentActivity() {
 fun PlaybackControls(
     currentSong: Music?,
     isPlaying: Boolean,
-    onPlayPauseClick: () -> Unit
+    onPlayPauseClick: () -> Unit,
+    currentPosition: Float,
+    totalDuration: Float
 ) {
     Card(
         modifier = Modifier
@@ -299,6 +303,14 @@ fun PlaybackControls(
                     )
                 }
             }
+            LinearProgressIndicator(
+                progress = if (totalDuration > 0) currentPosition / totalDuration else 0f,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(2.dp),
+                color = Color(0xFFc79818),
+                trackColor = Color.Transparent
+            )
         }
     }
 }
