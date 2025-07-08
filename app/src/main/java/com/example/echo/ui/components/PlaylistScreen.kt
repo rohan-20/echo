@@ -43,16 +43,24 @@ fun PlaylistScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("My Playlists") })
+            TopAppBar(
+                title = { Text("My Playlists") },
+                actions = {
+                    IconButton(onClick = { showCreatePlaylistDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Create New Playlist",
+                            tint = Color(0xFFc79818)
+                        )
+                    }
+                }
+            )
         }
     ) { paddingValues ->
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
             .padding(16.dp)) {
-            Button(onClick = { showCreatePlaylistDialog = true }) {
-                Text("Create New Playlist")
-            }
             Spacer(modifier = Modifier.height(16.dp))
             LazyColumn {
                 items(playlists) { playlist ->
@@ -81,7 +89,7 @@ fun PlaylistScreen(
                                 )
                             }
                             IconButton(onClick = { onPlayPlaylist(playlist.id) }) {
-                                Icon(Icons.Filled.PlayArrow, contentDescription = "Play Playlist", tint = Color(0xFFc79818))
+                                Icon(Icons.Filled.PlayArrow, contentDescription = "Play Playlist", tint = Color.White)
                             }
                         }
                     }
