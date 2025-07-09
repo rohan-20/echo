@@ -142,6 +142,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
     }
 
     fun playNextSong() {
+        _currentPosition.value = 0f
         if (currentPlaylistId != null) {
             if (playlistSongs.isEmpty()) return
             val currentSong = getCurrentSong() ?: return

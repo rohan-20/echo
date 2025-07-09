@@ -12,6 +12,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
@@ -147,6 +148,9 @@ class MainActivity : ComponentActivity() {
                                     currentSong = currentSong,
                                     isPlaying = isPlaying,
                                     onPlayPauseClick = { musicService?.playPause() },
+                                    onPreviousClick = { musicService?.playPreviousSong() },
+                                    onNextClick = { musicService?.playNextSong() },
+                                    onSeek = { position -> musicService?.seekTo(position) },
                                     currentPosition = currentPosition,
                                     totalDuration = totalDuration
                                 )
@@ -259,13 +263,30 @@ fun PlaybackControls(
     currentSong: Music?,
     isPlaying: Boolean,
     onPlayPauseClick: () -> Unit,
+    onPreviousClick: () -> Unit,
+    onNextClick: () -> Unit,
+    onSeek: (Float) -> Unit,
     currentPosition: Float,
     totalDuration: Float
 ) {
+    var isExpanded by remember { mutableStateOf(false) }
+    var sliderPosition by remember { mutableStateOf(currentPosition) }
+
+    LaunchedEffect(currentSong) {
+        sliderPosition = 0f // Reset slider position when a new song starts
+    }
+
+    LaunchedEffect(currentPosition) {
+        if (!isExpanded) { // Only update slider position if not actively seeking
+            sliderPosition = currentPosition
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clickable { isExpanded = !isExpanded },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF4a708c))
     ) {
         Column {
@@ -303,16 +324,89 @@ fun PlaybackControls(
                     )
                 }
             }
-            LinearProgressIndicator(
-                progress = if (totalDuration > 0) currentPosition / totalDuration else 0f,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(2.dp),
-                color = Color(0xFFc79818),
-                trackColor = Color.Transparent
-            )
+
+            if (isExpanded) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onPreviousClick) {
+                        Icon(
+                            Icons.Filled.SkipPrevious,
+                            contentDescription = "Previous",
+                            tint = Color.White
+                        )
+                    }
+                    IconButton(onClick = onPlayPauseClick) {
+                        Icon(
+                            if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                            contentDescription = if (isPlaying) "Pause" else "Play",
+                            tint = Color.White
+                        )
+                    }
+                    IconButton(onClick = onNextClick) {
+                        Icon(
+                            Icons.Filled.SkipNext,
+                            contentDescription = "Next",
+                            tint = Color.White
+                        )
+                    }
+                }
+                Slider(
+                    value = sliderPosition,
+                    onValueChange = {
+                        sliderPosition = it
+                    },
+                    onValueChangeFinished = {
+                        onSeek(sliderPosition)
+                    },
+                    valueRange = 0f..totalDuration,
+                    colors = SliderDefaults.colors(
+                        thumbColor = Color(0xFFc79818),
+                        activeTrackColor = Color(0xFFc79818),
+                        inactiveTrackColor = Color.Gray
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = formatTime(currentPosition),
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+                    )
+                    Text(
+                        text = formatTime(totalDuration),
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+                    )
+                }
+            } else {
+                LinearProgressIndicator(
+                    progress = if (totalDuration > 0) currentPosition / totalDuration else 0f,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(2.dp),
+                    color = Color(0xFFc79818),
+                    trackColor = Color.Transparent
+                )
+            }
         }
     }
+}
+
+fun formatTime(milliseconds: Float): String {
+    val totalSeconds = milliseconds / 1000
+    val minutes = (totalSeconds / 60).toInt()
+    val seconds = (totalSeconds % 60).toInt()
+    return String.format("%02d:%02d", minutes, seconds)
 }
 
 fun truncateText(text: String, maxLength: Int): String {
